@@ -60,7 +60,7 @@ int main(int argc, char const *argv[])
 {
     Stack* stk = new Stack(150);
     
-    for (int i=0; i<5; i++) stk->push( rand() - (RAND_MAX >> 1) );
+    for (int i=0; i<5; i++) stk->push( 10*(rand() - (RAND_MAX >> 1))/RAND_MAX );
     printf("Stack state before processing:\n");
     stk->print();
     
