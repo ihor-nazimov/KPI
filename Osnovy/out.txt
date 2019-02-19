@@ -1,4 +1,5 @@
-       Name          |      Value myStruct.x          | 5
+       Name          |      Value
+ myStruct.x          | 5
  myStruct.a          | 2
  myStruct.b          | 3
  myStruct.y          | -3.9395
