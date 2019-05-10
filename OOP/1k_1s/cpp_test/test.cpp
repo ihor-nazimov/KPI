@@ -32,6 +32,7 @@ public:
 
 int main(int argc, char const *argv[])
 {
+    //comment
     Test obj;
 
     obj.seti(123);
