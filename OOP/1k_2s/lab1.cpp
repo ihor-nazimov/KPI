@@ -148,7 +148,7 @@ int main(int argc, char const *argv[])
 
     printf("    N     rnd[i]   (rnd[i]-x1)/step\n");
     for (long int i = 0; i < fx_size; i++) {
-        rnd[i] = floor((smax-smin)*random()/RAND_MAX/step)*step + smin;  
+        rnd[i] = floor((smax-smin)*rand()/RAND_MAX/step)*step + smin;  
         printf("%5li %10.5lf %10.5lf\n", i, rnd[i], (rnd[i]-smin)/step);
     }
 
@@ -169,5 +169,6 @@ int main(int argc, char const *argv[])
     }
 
     Print(arr, fx_size);
+    getchar();
     return 0;
 }
