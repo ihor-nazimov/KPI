@@ -4,7 +4,8 @@
         "new": "cpp",
         "iostream": "cpp",
         "ostream": "cpp",
-        "iosfwd": "cpp"
+        "iosfwd": "cpp",
+        "iomanip": "cpp"
     },
     "C_Cpp.dimInactiveRegions": false
 }

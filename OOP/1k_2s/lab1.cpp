@@ -31,11 +31,11 @@ double cb_fill(FXStructure *fxstruct, long int i, double x, double s) {
     fxstruct->fx[i] = f(x, fxstruct->a, fxstruct->b);
 }
 
+#if defined __linux__
 double cb_printTabString(FXStructure *fxstruct, long int i, double x, double s) {
     printf("\u2551 %6.1lf %10.4lf %4li \u2551\n", x, fxstruct->fx[i], i);
 //    printf("\u2551 %20lg %20lg %4li \u2551\n", x, fxstruct->fx[i], i);
 }
-
 void Tab(FXStructure *fxstruct){
     printf("\u2554");
     for (int i = 0; i < 24; i++) { printf("\u2550"); }
@@ -46,6 +46,21 @@ void Tab(FXStructure *fxstruct){
     for (int i = 0; i < 24; i++) { printf("\u2550"); }
     printf("\u255d\n");
 }
+#else
+double cb_printTabString(FXStructure *fxstruct, long int i, double x, double s) {
+    printf("\xba %6.1lf %10.4lf %4li \xba\n", x, fxstruct->fx[i], i);
+}
+void Tab(FXStructure *fxstruct){
+    printf("\xc9");
+    for (int i = 0; i < 24; i++) { printf("\xcd"); }
+    printf("\xbb\n");
+    printf("\xba     x       f(x)     N \xba\n");
+    mapFX(fxstruct, cb_printTabString);
+    printf("\xc8");
+    for (int i = 0; i < 24; i++) { printf("\xcd"); }
+    printf("\xbc\n");
+}
+#endif
 
 void CalculateS1S2(FXStructure *fxstruct, double* s1, double* s2) {
     double x;
@@ -98,13 +113,13 @@ int main(int argc, char const *argv[])
     fxstruct.a = 1;
     fxstruct.b = 2;
 
-    printf("Enter x1: ");
+    printf("Enter x1 (0.1): ");
     do ; while (scanf("%lg", &fxstruct.x1) < 1);
 
-    printf("Enter x2: ");
+    printf("Enter x2 (3.6): ");
     do ; while (scanf("%lg", &fxstruct.x2) < 1);
     
-    printf("Enter dx: ");
+    printf("Enter dx: (0.1)");
     do ; while (scanf("%lg", &fxstruct.dx) < 1);
 
     printf("x1=%lg x2=%lg dx=%lg\n", fxstruct.x1, fxstruct.x2, fxstruct.dx);
@@ -169,6 +184,7 @@ int main(int argc, char const *argv[])
     }
 
     Print(arr, fx_size);
+    getchar();
     getchar();
     return 0;
 }

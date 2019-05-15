@@ -26,114 +26,18 @@ class Media {
         double prepayPrice;
         uint index;
 
-        Media(): type(UNKNOWN), founded_y(1900), founded_m(0), 
-                periodicity(0), prepayPrice(0.0), index(0) {}
-        Media(const char* nm, MediaTypes tp=UNKNOWN, uint ind=0): type(tp), index(ind),
-                founded_y(1900), founded_m(0), periodicity(0), prepayPrice(0.0) {
-            name(nm);
-        }
-        Media(const Media &t): founded_y(t.founded_y), founded_m(t.founded_m), 
-                periodicity(t.periodicity), prepayPrice(t.prepayPrice) {
-            name(t.name());
-            type = t.type;
-            index = t.index;
-            //*this = t; //alternative: copy pointer despite of copy values 
-        }
+        Media();
+        Media(const char* nm, MediaTypes tp=UNKNOWN, uint ind=0);
+        Media(const Media &t);
+        ~Media();
 
-        ~Media() {
-            if (_name) delete[] _name;
-            //fprintf(stderr, "<Kill %i>", index);
-        }
-
-        char* name(const char* nm=0) const { 
-            if (nm) {
-                if (_name) 
-                    delete[] _name;
-                _name = new char[strlen(nm)+1]; //length+1 bytes for correct delete[]
-                strcpy(_name, nm);
-            }
-            return _name;
-        };
-
-        bool operator== (const Media &t){
-            return strcmp(_name, t.name())==0 && type==t.type && founded_y==t.founded_y && founded_m==t.founded_m &&
-                    periodicity==t.periodicity && prepayPrice==t.prepayPrice && index==t.index;
-        }
-
-        Media& operator+ (const Media &t){
-            //Media* result = *this; //constructor by copy
-            prepayPrice += t.prepayPrice;
-            periodicity += t.periodicity; 
-            return *this;
-        }
-
-        operator double() const{
-            return prepayPrice;
-        }
-
-        const Media& operator= (const Media &t) {
-            if (!this) {
-                return t;
-            }
-            if ( *this == t ) {  //overloaded operator==
-                printf("The same!\n");
-                return *this;
-            } else
-            {
-                name(t.name()); 
-                type = t.type;
-                index = t.index;
-                founded_y = t.founded_y; 
-                founded_m = t.founded_m; 
-                periodicity = t.periodicity; 
-                prepayPrice = t.prepayPrice;
-                return *this;
-            } 
-        }
-
-        friend std::ostream& operator<< (std::ostream &out, const Media &md) {
-            out.width(15);    out.precision(0);
-            out << left << md.name() << "|" << md.index << "|" << 
-            setprecision(10) << setw(10); 
-            switch (md.type) {
-                case MAGAZIN:   out << "magazin"; break;
-                case NEWSPAPER: out << "newspaper"; break;
-                default:        out << "unknown";
-            } 
-            out << "|" << right << setw(4) << md.founded_y << "." << setw(2) << md.founded_m << "|" << 
-            fixed << setw(11) << setprecision(0) << md.periodicity << "|" << 
-            fixed << setw(8) << setprecision(2) << (double)md; //overloaded conversion to double
-            return out;
-        };
-
-        friend std::istream& operator>> (std::istream &in, Media &md) {
-            cout << "Enter name: ";
-            char* strbuf = new char[MAX_NAME];
-            //in >> strbuf; //gets first word only
-            //in.getline(strbuf, MAX_NAME, '\n'); //incorrect
-            in.get(strbuf, MAX_NAME, '\n'); //gets line
-            //cin >> setw(MAX_NAME) >> setprecision(MAX_NAME) >> strbuf;
-            //cin.rdbuf();
-            md.name(strbuf);
-            //in.ignore(numeric_limits<streamsize>::max());
-            delete[] strbuf;
-            
-            int medType = -1;
-            do {
-                cout << "Enter media type (0=UNKNOWN, 1=NEWSPAPER, 2=MAGAZIN): ";
-                in >> medType;
-            } while (medType < 0 || medType > 2);
-            md.type = (MediaTypes) medType;
-
-            cout << "Enter index (00000): ";
-            in >> md.index;
-            cout << "Enter year and month of foundation (yyyy mm): ";
-            in >> md.founded_y >> md.founded_m;
-            cout << "Enter periodicity: ";
-            in >> md.periodicity;
-            cout << "Enter subscription price: ";
-            in >> md.prepayPrice;
-        };
+        char* name(const char* nm=0) const;
+        bool operator== (const Media &t);
+        Media& operator+ (const Media &t);
+        operator double() const;
+        const Media& operator= (const Media &t);
+        friend std::ostream& operator<< (std::ostream &out, const Media &md);
+        friend std::istream& operator>> (std::istream &in, Media &md);
 };
 
 const char* headLine1 = "    |               |     |          |Founded|Periodicity|Prepay\n";
@@ -197,7 +101,7 @@ int main(int argc, char const *argv[])
                 for (i = 0; i<=MAX_ROW; i++) 
                     if (!meds[i]) break;
                 if (meds[i]) {
-                    cerr << "Can't add row: table is full" << endl;
+                    cerr << "\nCan't add row: table is full" << endl;
                     break;
                 }
                 meds[i] = new Media();
@@ -205,7 +109,7 @@ int main(int argc, char const *argv[])
                 if (cin.fail()) {
                     delete meds[i];
                     meds[i] = 0;
-                    cerr << "Can't add row: Incorrect input" << endl;
+                    cerr << "\nCan't add row: Incorrect input" << endl;
                     cin.clear();
                     cin.ignore(numeric_limits<streamsize>::max(), '\n'); //free input buffer
                 }
@@ -225,7 +129,7 @@ int main(int argc, char const *argv[])
                     meds[i] = new Media(*meds[srcRow]);
                     cout << "Row was copied into #" << i << endl;
                 } else {
-                    cerr << "Can't copy row: Table is full";
+                    cerr << "\nCan't copy row: Table is full";
                 }
                 break;
             }
@@ -276,3 +180,115 @@ int main(int argc, char const *argv[])
     return 0;
     
 }
+
+
+//implementation
+Media::Media(): type(UNKNOWN), founded_y(1900), founded_m(0), 
+        periodicity(0), prepayPrice(0.0), index(0) {}
+
+Media::Media(const char* nm, MediaTypes tp, uint ind): type(tp), index(ind),
+        founded_y(1900), founded_m(0), periodicity(0), prepayPrice(0.0) {
+    name(nm);
+}
+
+Media::Media(const Media &t): founded_y(t.founded_y), founded_m(t.founded_m), 
+        periodicity(t.periodicity), prepayPrice(t.prepayPrice) {
+    name(t.name());
+    type = t.type;
+    index = t.index;
+    //*this = t; //alternative: copy pointer despite of copy values 
+}
+
+Media::~Media() { 
+    if (_name) delete[] _name; 
+}
+
+char* Media::name(const char* nm) const { 
+    if (nm) {
+        if (_name) 
+            delete[] _name;
+        _name = new char[strlen(nm)+1]; //length+1 bytes for correct delete[]
+        strcpy(_name, nm);
+    }
+    return _name;
+};
+
+bool Media::operator== (const Media &t){
+    return strcmp(_name, t.name())==0 && type==t.type && founded_y==t.founded_y && founded_m==t.founded_m &&
+            periodicity==t.periodicity && prepayPrice==t.prepayPrice && index==t.index;
+}
+
+Media& Media::operator+ (const Media &t){
+    //Media* result = *this; //constructor by copy
+    prepayPrice += t.prepayPrice;
+    periodicity += t.periodicity; 
+    return *this;
+}
+
+Media::operator double() const{
+    return prepayPrice;
+}
+
+const Media& Media::operator= (const Media &t) {
+    if (!this) {
+        return t;
+    }
+    if ( *this == t ) {  //overloaded operator==
+        printf("The same!\n");
+        return *this;
+    } else
+    {
+        name(t.name()); 
+        type = t.type;
+        index = t.index;
+        founded_y = t.founded_y; 
+        founded_m = t.founded_m; 
+        periodicity = t.periodicity; 
+        prepayPrice = t.prepayPrice;
+        return *this;
+    } 
+}
+
+std::ostream& operator<< (std::ostream &out, const Media &md) {
+    out.width(15);    out.precision(0);
+    out << left << md.name() << "|" << md.index << "|" << 
+    setprecision(10) << setw(10); 
+    switch (md.type) {
+        case MAGAZIN:   out << "magazin"; break;
+        case NEWSPAPER: out << "newspaper"; break;
+        default:        out << "unknown";
+    } 
+    out << "|" << right << setw(4) << md.founded_y << "." << setw(2) << md.founded_m << "|" << 
+    fixed << setw(11) << setprecision(0) << md.periodicity << "|" << 
+    fixed << setw(8) << setprecision(2) << (double)md; //overloaded conversion to double
+    return out;
+};
+
+std::istream& operator>> (std::istream &in, Media &md) {
+    cout << "Enter name: ";
+    char* strbuf = new char[MAX_NAME];
+    //in >> strbuf; //gets first word only
+    //in.getline(strbuf, MAX_NAME, '\n'); //incorrect
+    in.get(strbuf, MAX_NAME, '\n'); //gets line
+    //cin >> setw(MAX_NAME) >> setprecision(MAX_NAME) >> strbuf;
+    //cin.rdbuf();
+    md.name(strbuf);
+    //in.ignore(numeric_limits<streamsize>::max());
+    delete[] strbuf;
+    
+    int medType = -1;
+    do {
+        cout << "Enter media type (0=UNKNOWN, 1=NEWSPAPER, 2=MAGAZIN): ";
+        in >> medType;
+    } while (medType < 0 || medType > 2);
+    md.type = (MediaTypes) medType;
+
+    cout << "Enter index (00000): ";
+    in >> md.index;
+    cout << "Enter year and month of foundation (yyyy mm): ";
+    in >> md.founded_y >> md.founded_m;
+    cout << "Enter periodicity: ";
+    in >> md.periodicity;
+    cout << "Enter subscription price: ";
+    in >> md.prepayPrice;
+};
