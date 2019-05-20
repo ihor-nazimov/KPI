@@ -172,36 +172,54 @@ class Sector: public Employee { //Person - head of sector
 };
 
 int main(int argc, char** argv) {
-    // Date dt(2019, 5, 8);
-    // Date* dt2 = new Date(dt);
-    // //Position pos = Position("CEO", 1000, true);
-    // //Person pers;// = Person(1976, 6, 28);
+    Date dt(2019, 5, 8);
+    Date* dt2 = new Date(dt);
+    std::cout << "sizeof(Date)" << sizeof(dt) << std::endl;
+    std::cout << "sizeof(Date*)" << sizeof(dt2) << std::endl;
+    std::cout <<  "sizeof(Date)" << sizeof(*dt2) << std::endl;
+
+
+    Position pos = Position("CEO", 1000, true);
+    std::cout << "sizeof(Position)" << sizeof(pos) << std::endl;
+    //std::cout << "sizeof(Position*)" << sizeof(pos) << std::endl;
+
+    Person pers;// = Person(1976, 6, 28);
+    std::cout << "sizeof(Person)" << sizeof(pers) << std::endl;
     // delete dt2;
 
     //Mr. Sherlock Holmes
     //Private detectiive
-    // Position* holmes = new Position("detective", 2000, false);
-    // cout << holmes->title() << endl;
-    // holmes->title("consulting detective");
-    // cout << holmes->title() << endl;
-    // holmes->display();
+    Position* holmes = new Position("detective", 2000, false);
+    std::cout << "sizeof(Position*)" << sizeof(holmes) << std::endl;
+    std::cout << "sizeof(Position)" << sizeof(*holmes) << std::endl;
+    cout << holmes->title() << endl;
+    holmes->title("consulting detective");
+    cout << holmes->title() << endl;
+    holmes->display();
 
-    // Person* pers1 = new Person();
-    // Person* sherlock = new Person("Sherlock", "Holmes", 1850, 1, 1);
-    // Person* pers3 = new Person(*sherlock);
-    // pers3->show();
-    // cout << sherlock->name() << endl;
-    // cout << sherlock->name("Mr.Sherlock") << endl;
-    // cout << sherlock->surname() << endl << sherlock->surname("HOLMES") << endl;
-    // sherlock->show();
-    // Date* bday = (Date*) sherlock;
-    // bday->show();
+    Person* pers1 = new Person();
+    Person* sherlock = new Person("Sherlock", "Holmes", 1850, 1, 1);
+    Person* pers3 = new Person(*sherlock);
+    std::cout << "sizeof(Person*)" << sizeof(sherlock) << std::endl;
+    std::cout << "sizeof(Person)" << sizeof(*sherlock) << std::endl;
+    pers3->show();
+    cout << sherlock->name() << endl;
+    cout << sherlock->name("Mr.Sherlock") << endl;
+    cout << sherlock->surname() << endl << sherlock->surname("HOLMES") << endl;
+    sherlock->show();
+    Date* bday = (Date*) sherlock;
+    bday->show();
+    std::cout << "sizeof(Date/Person*)" << sizeof(bday) << std::endl;
+    std::cout << "sizeof(Date/Person)" << sizeof(*bday) << std::endl;
 
     Employee* detective = new Employee(
             *new Person("Name", "Surname", 1976, 6, 28), 
             *new Position("consulting detective", 2500, false),
             *new Date(2019, 05, 20));
     detective->show();
+
+    std::cout << "sizeof(Employee*)" << sizeof(detective) << std::endl;
+    std::cout << "sizeof(Employee)" << sizeof(*detective) << std::endl;
 
     getchar();
     delete detective;
