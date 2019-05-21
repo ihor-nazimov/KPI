@@ -142,11 +142,13 @@ class Sector: public Employee { //Person - head of sector
         Sector() {}
         Sector(const char* sectnm, Employee& head) {
             sectorname(sectnm);
-            (Employee) *this = head;
+            Employee* tmphead = (Employee*) this;
+            *tmphead = head;
         }
         Sector(const Sector& sect) {
             sectorname(sect._sectorname);
-            (Employee) *this = (Employee) sect; 
+            Employee* tmphead = (Employee*) this;
+            *tmphead = (Employee) sect;
             for (int i=0; i<MAX_EMPLOYEES-1; i++) _elist[i] = sect._elist[i];
         }
         ~Sector() {
@@ -212,17 +214,38 @@ int main(int argc, char** argv) {
     std::cout << "sizeof(Date/Person*)" << sizeof(bday) << std::endl;
     std::cout << "sizeof(Date/Person)" << sizeof(*bday) << std::endl;
 
-    Employee* detective = new Employee(
-            *new Person("Name", "Surname", 1976, 6, 28), 
-            *new Position("consulting detective", 2500, false),
-            *new Date(2019, 05, 20));
-    detective->show();
+    std::cout << "sizeof(Date)" << sizeof(Date) << std::endl;
+    std::cout << "sizeof(Person)" << sizeof(Person) << std::endl;
+    std::cout << "sizeof(Position)" << sizeof(Position) << std::endl;
+    std::cout << "sizeof(Employee)" << sizeof(Employee) << std::endl;
+    std::cout << "sizeof(Sector)" << sizeof(Sector) << std::endl;
 
-    std::cout << "sizeof(Employee*)" << sizeof(detective) << std::endl;
-    std::cout << "sizeof(Employee)" << sizeof(*detective) << std::endl;
+    //head of sector
+    Employee* head = new Employee(
+            *new Person("Artur", "Conan Doyle", 1859, 5, 22), 
+            *new Position("author", 1000000, false), 
+            *new Date(1891, 01, 01)); //employed
+    head->show();
+
+    Sector* bs221b = new Sector("221B Baker Street", *head);
+    delete head;
+    bs221b->_elist[0] = Employee(
+            *new Person("Sherlock", "Holmes", 1850, 1, 1), 
+            *new Position("consulting detective", 100000, false), 
+            *new Date(1891, 01, 02)); //employed
+    bs221b->_elist[1] = Employee(
+            *new Person("John", "Watson", 1850, 1, 2), 
+            *new Position("assistant", 100000, false), 
+            *new Date(1891, 01, 02)); //employed
+    bs221b->_elist[2] = Employee(
+            *new Person("Martha", "Hudson", 1850, 1, 3), 
+            *new Position("landlady", 100000, false), 
+            *new Date(1891, 01, 03)); //employed
+
+
+
 
     getchar();
-    delete detective;
 
     // //Dr. John Watson  
     // //detective's assistant
