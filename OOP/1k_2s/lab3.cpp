@@ -166,7 +166,7 @@ class Sector: public Employee { //Person - head of sector
             printf("Class Sector(@%p):\n", this);
             printf("\tHead of sector: "); Employee::show();
             printf("\tEmployees:\n");
-            for (int i = 0; i < 3; i++) {
+            for (int i = 0; i < MAX_EMPLOYEES; i++) {
                 printf("\t");
                 _elist[i].show();
             }
@@ -228,7 +228,6 @@ int main(int argc, char** argv) {
     head->show();
 
     Sector* bs221b = new Sector("221B Baker Street", *head);
-    delete head;
     bs221b->_elist[0] = Employee(
             *new Person("Sherlock", "Holmes", 1850, 1, 1), 
             *new Position("consulting detective", 100000, false), 
@@ -242,7 +241,8 @@ int main(int argc, char** argv) {
             *new Position("landlady", 100000, false), 
             *new Date(1891, 01, 03)); //employed
 
-
+    bs221b->display();
+    delete head;
 
 
     getchar();
