@@ -1,0 +1,95 @@
+sizeof(Date)16
+sizeof(Person)24
+sizeof(Position)24
+sizeof(Employee)64
+sizeof(Sector)80
+
+Employee head is:
+Class Employee(@00FB7D60):
+        Class Person(@00FB7D60): Artur Conan Doyle, birthday is:
+        Class Date(@00FB7D60): 1859. 5.22
+        Class Position(@00FB7D78): author, salary=1000000.00, occupied
+
+Sector is:
+Class Sector(@00FB0DE8):
+        Head of sector: Class Employee(@00FB0DE8):
+        Class Person(@00FB0DE8): Artur Conan Doyle, birthday is:
+        Class Date(@00FB0DE8): 1859. 5.22
+        Class Position(@00FB0E00): author, salary=1000000.00, occupied
+        Employee list:
+        #0
+Class Employee(@00FB0FD0):
+        Class Person(@00FB0FD0): Sherlock Holmes, birthday is:
+        Class Date(@00FB0FD0): 1850. 1. 1
+        Class Position(@00FB0FE8): consulting detective, salary= 100000.00, occupied
+        #1
+Class Employee(@00FB11A8):
+        Class Person(@00FB11A8): John Watson, birthday is:
+        Class Date(@00FB11A8): 1850. 1. 2
+        Class Position(@00FB11C0): assistant, salary= 100000.00, occupied
+        #2
+Class Employee(@00FB1368):
+        Class Person(@00FB1368): Martha Hudson, birthday is:
+        Class Date(@00FB1368): 1850. 1. 3
+        Class Position(@00FB1380): landlady, salary= 100000.00, occupied
+
+
+Date::show() Class Employee(@00FB0DE8):
+        Class Person(@00FB0DE8): Artur Conan Doyle, birthday is:
+        Class Date(@00FB0DE8): 1859. 5.22
+        Class Position(@00FB0E00): author, salary=1000000.00, occupied
+
+Position::display() Class Sector(@00FB0DE8):
+        Head of sector: Class Employee(@00FB0DE8):
+        Class Person(@00FB0DE8): Artur Conan Doyle, birthday is:
+        Class Date(@00FB0DE8): 1859. 5.22
+        Class Position(@00FB0E00): author, salary=1000000.00, occupied
+        Employee list:
+        #0
+Class Employee(@00FB0FD0):
+        Class Person(@00FB0FD0): Sherlock Holmes, birthday is:
+        Class Date(@00FB0FD0): 1850. 1. 1
+        Class Position(@00FB0FE8): consulting detective, salary= 100000.00, occupied
+        #1
+Class Employee(@00FB11A8):
+        Class Person(@00FB11A8): John Watson, birthday is:
+        Class Date(@00FB11A8): 1850. 1. 2
+        Class Position(@00FB11C0): assistant, salary= 100000.00, occupied
+        #2
+Class Employee(@00FB1368):
+        Class Person(@00FB1368): Martha Hudson, birthday is:
+        Class Date(@00FB1368): 1850. 1. 3
+        Class Position(@00FB1380): landlady, salary= 100000.00, occupied
+
+Person::show() Class Employee(@00FB0DE8):
+        Class Person(@00FB0DE8): Artur Conan Doyle, birthday is:
+        Class Date(@00FB0DE8): 1859. 5.22
+        Class Position(@00FB0E00): author, salary=1000000.00, occupied
+
+Employee::show() Class Employee(@00FB0DE8):
+        Class Person(@00FB0DE8): Artur Conan Doyle, birthday is:
+        Class Date(@00FB0DE8): 1859. 5.22
+        Class Position(@00FB0E00): author, salary=1000000.00, occupied
+
+Employee::display() Class Sector(@00FB0DE8):
+        Head of sector: Class Employee(@00FB0DE8):
+        Class Person(@00FB0DE8): Artur Conan Doyle, birthday is:
+        Class Date(@00FB0DE8): 1859. 5.22
+        Class Position(@00FB0E00): author, salary=1000000.00, occupied
+        Employee list:
+        #0
+Class Employee(@00FB0FD0):
+        Class Person(@00FB0FD0): Sherlock Holmes, birthday is:
+        Class Date(@00FB0FD0): 1850. 1. 1
+        Class Position(@00FB0FE8): consulting detective, salary= 100000.00, occupied
+        #1
+Class Employee(@00FB11A8):
+        Class Person(@00FB11A8): John Watson, birthday is:
+        Class Date(@00FB11A8): 1850. 1. 2
+        Class Position(@00FB11C0): assistant, salary= 100000.00, occupied
+        #2
+Class Employee(@00FB1368):
+        Class Person(@00FB1368): Martha Hudson, birthday is:
+        Class Date(@00FB1368): 1850. 1. 3
+        Class Position(@00FB1380): landlady, salary= 100000.00, occupied
+
