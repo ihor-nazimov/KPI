@@ -1,26 +1,3 @@
-/* TODO:
-1. Тестирование классов кроме Date
-    (Person) *this = pers;
-            
-2. Использование show / display с ранним и поздним связываниями
-3. Влияние виртуальности на корректное отображение
-4. *** на размер объектов конечного класса 
-*/
-
-//non virtual
-// sizeof(Date)12
-// sizeof(Person)20
-// sizeof(Position)24
-// sizeof(Employee)56
-// sizeof(Sector)72
-
-//virtual show() and display()
-// sizeof(Date)16
-// sizeof(Person)24
-// sizeof(Position)24
-// sizeof(Employee)64
-// sizeof(Sector)80
-
 #include <cstdlib>
 //#include <stdio.h>
 #include <string>
