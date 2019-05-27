@@ -8,19 +8,21 @@
 
 using namespace std;
 
+//base classes
 class CDate {
+    protected:
         unsigned _year = 1900;
         unsigned _month = 0;
         unsigned _day = 0;
+//        void _copy(const CDate src) {}
     public:
         CDate() {};
         CDate(unsigned yy, unsigned mm, unsigned dd): _year(yy), _month(mm), _day(dd) {};
-        const CDate& set(unsigned yy, unsigned mm, unsigned dd) {
-            _year = yy;
-            _month = mm;
-            _day = dd;
-            return this;
-        }
+        // const CDate& set(unsigned yy, unsigned mm, unsigned dd) {
+        //     _year = yy;
+        //     _month = mm;
+        //     _day = dd;
+        // }
         friend std::ostream& operator<< (std::ostream &out, const CDate &dt) {
             out.width(4); out.precision(4); out.fixed;
             out << dt._day << '.' << dt._month << '.';
@@ -57,74 +59,135 @@ class CFuel {
         };
 };
 
+//inherited classes
 class COperator {
-        char* name = 0;
-        char* surname = 0;
+        char* _name = 0;
+        char* _surname = 0;
         CDate birthday;
+    // protected:
+    //     const COperator& _copy(const COperator& src) {
+    //         *this = src;
+    //         _name = 0;
+    //         _surname = 0;
+    //         surname(const_cast<COperator&>(src).surname());
+    //         name(const_cast<COperator&>(src).name());
+    //         //CDate::_copy((CDate)*this);
+    //         return *this; 
+    //     }
     public:
         COperator() {}
         COperator(const char* nm, const char* snm, unsigned yy, unsigned mm, unsigned dd) {
-            birthday.set(yy, mm, dd);
-            name = new char[strlen(nm)+1]; strcpy(name, nm);
-            surname = new char[strlen(snm)+1]; strcpy(surname, snm);
+            birthday = CDate(yy, mm, dd);
+            // _year = yy;
+            // _month = mm;
+            // _day = dd;
+            name(nm);
+            surname(snm);
         }
+        COperator(const COperator& src) {
+            _name = 0;
+            _surname = 0;
+            surname(const_cast<COperator&>(src).surname());
+            name(const_cast<COperator&>(src).name());
+        }
+        
         ~COperator() {
-            if (name) delete[] name;
-            if (surname) delete[] surname;
+            if (name) delete[] _name;
+            if (surname) delete[] _surname;
         }
         friend std::ostream& operator<< (std::ostream &out, const COperator &op) {
             out << fixed << left << setw(12) << setprecision(12) << op.surname << '|' <<
             fixed << left << setw(8) << setprecision(8) << op.name << '|' <<
-            fixed << op.birthday;
+            fixed << (CData)op;
             return out;
         };
+        const char* name(const char* nm=0) {
+            if (nm == _name) return _name;
+            if (nm) {
+                if (!_name) delete[] _name;
+                _name = new char[strlen(nm)+1];
+                strcpy(_name, nm);
+            }
+            return _name;
+        }
+        const char* surname(const char* surnm=0) {
+            if (surnm == _surname) return _surname;
+            if (surnm) {
+                if (!_surname) delete[] _surname;
+                _surname = new char[strlen(surnm)+1];
+                strcpy(_surname, surnm);
+            }
+            return _surname;
+        }
+
 };
 
-class COperation {
-        const COperator* _operator = 0;
-        const CFuel* _fuel;
+class COperation: public CDate, public COperator, public CFuel {
+        // const COperator* _operator = 0;
+        // const CFuel* _fuel;
         double quantity = 0;
         double totalPrice = 0;
-        CDate saleDate;
     public:
-        COperation(): _fuel(0) {};
-        COperation(const COperator &op, const CFuel &fuel, double qnt, double total, unsigned yy, unsigned mm, unsigned dd):
+        COperation() {};
+        COperation(const COperator& op, const CFuel& fuel, double qnt, double total, unsigned yy, unsigned mm, unsigned dd):
             quantity(qnt), totalPrice(total) {
-            _operator = &op;
-            _fuel = &fuel;
-            saleDate.set(yy, mm, dd);
+            COperator* tmpop = (COperator*) this;
+            *tmpop = op;
+            CFuel* tmpfuel = (CFuel*) this;
+            *tmpfuel = fuel;
+            _year = yy;
+            _month = mm;
+            _day = dd;
+        } 
+        COperation(const COperation& op) {
+            COperator* tmpop = (COperator*) this;
+            *tmpop = (COperator) op;
+            CFuel* tmpfuel = (CFuel*) this;
+            *tmpfuel = (CFuel) op;
         } 
         friend std::ostream& operator<< (std::ostream &out, const COperation &opn) {
-            out << saleDate << '|' << opn._operator << '|' << opn._fuel << '|' <<
+            out << CDate(opn) << '|' << (COperator) opn << '|' << (CFuel) opn << '|' <<
             fixed << left << setw(10) << setprecision(3) << opn.quantity << '|' <<
             fixed << left << setw(10) << setprecision(2) << opn.totalPrice;
             return out;
         };
 };
 
-class CDayBalance { //баланс
-        CDate date;
-        unsigned sizeofList = 0;
+//1. динамический массив?
+//2. добавление єлементов
+class CDayBalance: public CDate { //баланс
+       unsigned sizeofList = 0;
         COperation* _operationList[]; //list of operation. Must be placed at and of class!
     public:
-        CDayBalance() {
-            _operationList = new COperation [0];
+        CDayBalance() {} 
+        CDayBalance(unsigned yy, unsigned mm, unsigned dd) {
+            _year = yy;
+            _month = mm;
+            _day = dd;
         } 
         // const double total(unsigned index) {
         //     return _operationList[index].totalPrice;
         // }; 
-        double operator[] (unsigned index){
+        ~CDayBalance() {
+            for (unsigned i=0; i < sizeofList; i++) delete[] _operationList[i];
+        }
+        unsigned push_back(COperation& value) {
+                        
+        }
+
+
+        const COperation& operator[] (unsigned index){
             cout << "index:" << index << endl;
             if (index >= sizeofList) 
                 throw std::out_of_range("CDayBalance out of range");
-            return _operationList[index].totalPrice;
+            return *_operationList[index];
         };
-        // const size_t size() {
-        //     return sizeofList;
-        // };
+        const size_t size() {
+            return sizeofList;
+        };
 };
 
-template <class A> 
+/*template <class A> 
 double standardDeviation(A arr) {
     double sum = 0;
     double dev = 0;
@@ -152,12 +215,12 @@ double standardDeviation(A arr) {
         dev += tmp*tmp;
     }
     return sqrt(dev/sizeofA);
-} 
+} */
 
 int main(int argc, char const *argv[])
 {
     CDayBalance balance;
-    double res = standardDeviation(balance);
-    cout << res << endl;    
+    //double res = standardDeviation(balance);
+    //cout << res << endl;    
     return 0;
 }
