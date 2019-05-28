@@ -4,9 +4,20 @@
 #include <exception>
 #include <stdexcept>
 #include <iostream>
+#include <iomanip>
 #include <string.h>
 
 using namespace std;
+
+// template <class T>
+// class Saveable {
+//     friend std::ofstream& operator<<(std::ofstream &out, const T& tosave){
+//         tosave.save(out);
+//     }
+//     friend std::ifstream& operator>>(std::ofstream &in, const T& toload){
+//         toload.load(in);
+//     }
+// };
 
 //base classes
 class CDate {
@@ -29,6 +40,17 @@ class CDate {
             out << fixed << right << setw(4) << setprecision(4) << dt._year;
             return out;
         };
+        friend std::ofstream& operator<<(std::ofstream &out, const CDate& tosave){
+            out << tosave._year << tosave._month << tosave._date;
+            return out;
+        }
+        friend std::ifstream& operator>>(std::ofstream &in, const CDate& toload){
+            // char* sign = new char[6];
+            // in.get(sign, 5);
+            // if (!strncmp("CDate", sign, 5)){
+                in >> tosave._year >> tosave._month >> tosave._date;
+            // } else throw;
+        }
 };
 
 class CFuel {
@@ -92,13 +114,13 @@ class COperator {
         }
         
         ~COperator() {
-            if (name) delete[] _name;
-            if (surname) delete[] _surname;
+            if (_name) delete[] _name;
+            if (_surname) delete[] _surname;
         }
         friend std::ostream& operator<< (std::ostream &out, const COperator &op) {
-            out << fixed << left << setw(12) << setprecision(12) << op.surname << '|' <<
-            fixed << left << setw(8) << setprecision(8) << op.name << '|' <<
-            fixed << (CData)op;
+            out << fixed << left << setw(12) << setprecision(12) << const_cast<COperator&>(op).surname() << '|' <<
+            fixed << left << setw(8) << setprecision(8) << const_cast<COperator&>(op).name() << '|' <<
+            fixed << op.birthday;
             return out;
         };
         const char* name(const char* nm=0) {
@@ -125,9 +147,9 @@ class COperator {
 class COperation: public CDate, public COperator, public CFuel {
         // const COperator* _operator = 0;
         // const CFuel* _fuel;
+    public:
         double quantity = 0;
         double totalPrice = 0;
-    public:
         COperation() {};
         COperation(const COperator& op, const CFuel& fuel, double qnt, double total, unsigned yy, unsigned mm, unsigned dd):
             quantity(qnt), totalPrice(total) {
@@ -145,6 +167,8 @@ class COperation: public CDate, public COperator, public CFuel {
             CFuel* tmpfuel = (CFuel*) this;
             *tmpfuel = (CFuel) op;
         } 
+        operator double() { return totalPrice; }
+        
         friend std::ostream& operator<< (std::ostream &out, const COperation &opn) {
             out << CDate(opn) << '|' << (COperator) opn << '|' << (CFuel) opn << '|' <<
             fixed << left << setw(10) << setprecision(3) << opn.quantity << '|' <<
@@ -156,26 +180,31 @@ class COperation: public CDate, public COperator, public CFuel {
 //1. динамический массив?
 //2. добавление єлементов
 class CDayBalance: public CDate { //баланс
-       unsigned sizeofList = 0;
-        COperation* _operationList[]; //list of operation. Must be placed at and of class!
+        unsigned maxsizeofList = 0;
+        unsigned sizeofList = 0;
+        COperation** _operationList; //list of operation. Must be placed at and of class!
     public:
         CDayBalance() {} 
-        CDayBalance(unsigned yy, unsigned mm, unsigned dd) {
+        CDayBalance(unsigned yy, unsigned mm, unsigned dd, unsigned maxsize) {
             _year = yy;
             _month = mm;
             _day = dd;
+            maxsizeofList = maxsize;
+            _operationList = new COperation* [maxsizeofList];
+            for (unsigned i=0; i < maxsizeofList; i++) _operationList[i] = 0;
         } 
         // const double total(unsigned index) {
         //     return _operationList[index].totalPrice;
         // }; 
         ~CDayBalance() {
-            for (unsigned i=0; i < sizeofList; i++) delete[] _operationList[i];
+            for (unsigned i=0; i < maxsizeofList; i++) 
+                if ( ! _operationList[i] ) delete[] _operationList[i];
         }
         unsigned push_back(COperation& value) {
-                        
+            if (sizeofList < maxsizeofList) 
+                _operationList[sizeofList++] = &value;
+            return sizeofList;
         }
-
-
         const COperation& operator[] (unsigned index){
             cout << "index:" << index << endl;
             if (index >= sizeofList) 
@@ -187,35 +216,25 @@ class CDayBalance: public CDate { //баланс
         };
 };
 
-/*template <class A> 
+template <class A> 
 double standardDeviation(A arr) {
+//double standardDeviation(COperation* arr[], unsigned size) {
     double sum = 0;
     double dev = 0;
     double tmp;
-
-// double standardDeviation(CDayBalance& arr) {
-//     double sum = 0;
-//     double dev = 0;
-//     double tmp;
     unsigned i, sizeofA; 
     //sizeofA = arr.size();
-
-    try {
-        for (i = 0; i <= INT_MAX; i++) {
-                sum += arr[i];
-        }
+    sizeofA = arr.size();
+    for (i = 0; i < sizeofA; i++) {
+            sum += *arr[i];
     }
-    catch (std::out_of_range& e) {
-        //cout << e.what() << endl;
-    }
-    sizeofA = i;
     sum /= sizeofA;
     for (i = 0; i < sizeofA; i++) {
-        tmp = sum-arr[i];
+        tmp = sum-*arr[i];
         dev += tmp*tmp;
     }
     return sqrt(dev/sizeofA);
-} */
+}
 
 int main(int argc, char const *argv[])
 {
