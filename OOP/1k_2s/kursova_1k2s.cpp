@@ -25,10 +25,13 @@
 #include <cassert>
 #include <typeinfo>
 #include <cstring>
+#include <climits>
+#include <limits>
 
 template <class C>
 std::ostream& writeTypeSign(std::ostream& out) {
     if (out.flags && std::ios::binary) 
+        //сігнатура на містить довжину строки. Завантаження у довільному порядку не передбачено
         out.write(typeid(C).name(), strlen(typeid(C).name()) + 1 ); //save class signature
     else 
         out << typeid(C).name();
@@ -47,7 +50,7 @@ bool readTypeSign(std::istream& in) {
             fVerified = true;
         else 
             in.seekg(lastpos);
-        
+            assert"readTypeSign: Error while reading file - incorrect class signature");
         delete signature;
     }
     return fVerified;
@@ -80,6 +83,27 @@ size_t readArray(std::ostream& in, C* c[], size_t max_sz) {
         } 
     }
     return readed < max_sz ? readed : max_sz;
+}
+
+//save char* and it's length and into binary stream
+std::ostream& writeChars(std::ostream& out, const char* s) {
+    size_t sz = 0;
+    if (s != 0) {
+        sz = strlen(s)+1;
+        out.write(reinterpret_cast<char*>(&sz), sizeof(size_t));
+        out.write(s, sz);
+    } else
+        out.write(reinterpret_cast<char*>(&sz), sizeof(size_t));
+    return out;
+}
+
+//load char* from binary stream
+std::istream& readChars(std::istream& in, char* s) {
+    size_t sz = 0;
+    in.read(reinterpret_cast<char*>(&sz), sizeof(size_t));
+    s = new char[sz];
+    in.read(s, sz);
+    return in;
 }
 
 template <class C>
@@ -185,14 +209,16 @@ class CPerson {
                 assert(_name == 0);
                 assert(_surname == 0);
                 assert(birthday == 0);
+
+                writeChars(out, _name); 
+                // size_t sz = strlen(_name)+1;
+                // out.write(reinterpret_cast<char*>(&sz), sizeof(size_t));
+                // out.write(_name), sz);
                 
-                size_t sz = strlen(_name)+1;
-                out.write(reinterpret_cast<char*>(&sz), sizeof(size_t));
-                out.write(_name), sz);
-                
-                size_t sz = strlen(_surname)+1;
-                out.write(reinterpret_cast<char*>(&sz), sizeof(size_t));
-                out.write(_surname), sz);
+                writeChars(out, _surname);
+                // size_t sz = strlen(_surname)+1;
+                // out.write(reinterpret_cast<char*>(&sz), sizeof(size_t));
+                // out.write(_surname, sz);
 
                 out << *birthday;
             } else {
@@ -210,15 +236,7 @@ class CPerson {
                     if (_name) delete[] _name;                    
                     if (_surname) delete[] _surname;
                     if (birthday) delete birthday;                    
-                    
-                    in.read(&sz, sizeof(size_t));
-                    _name = new char[sz];
-                    in.read(_name, sz);
-                    
-                    in.read(&sz, sizeof(size_t));
-                    _surname = new char[sz];
-                    in.read(_surname, sz);
-                    
+                    in >> readChars(_name) >> readChars(in, _surname);
                     birthday = new CDate();
                     in >> *birthday;
                 } else 
@@ -239,13 +257,13 @@ class CFile {
             filename(fnm);
             extention(ext);
             date(crtd);
-            setsize(sz);
+            size(sz);
         };
         CFile(const CFile& src) {
             filename(const_cast<CFile&>(src).filename());
             extention(const_cast<CFile&>(src).extention());
             date(const_cast<CFile&>(src).date());
-            setsize(const_cast<CFile&>(src).getsize());
+            size(const_cast<CFile&>(src).size());
         }
         ~CFile() {
             if (_filename) delete[] _filename;
@@ -254,9 +272,41 @@ class CFile {
         }
         const char* filename(const char* fnm=0) { return setchars(fnm, _filename); }
         const char* extention(const char* ext=0) { return setchars(ext, _extention); }
-        unsigned long setsize(unsigned long sz) { return _size = sz; }
-        unsigned long getsize() { return _size; }
+        unsigned long size(unsigned long sz=ULONG_MAX) { 
+            if (sz != ULONG_MAX) _size = sz;
+            return _size = sz; 
+        }
         const CDate* date(const CDate* dt=0) { return setlocal<CDate>(dt, _created); }
+
+        friend std::ostream& header (std::ostream &out) {
+            out << "                Filename                        |       Size      |" << date().header;
+            return out;
+        };
+
+        friend std::ostream& operator<< (std::ostream &out, CFile& file) {
+            if (out.flags && std::ios::binary) {
+                writeTypeSign<CFile> (out);
+                out << writeChars(_filename) << writeChars(_extension) << *_created << _size;
+            } else {
+                out.width(48); out.precision(48); out.fixed;
+                out << left << strcat(_filename, ".", _extension) << '|' << _size << '|' << *_created;
+            }
+            return out;
+        };
+
+        friend std::istream& operator>> (std::istream &in, CFile& file) {
+            size_t sz = 0;
+            if (in.flags && std::ios::binary) {
+                if ( readTypeSign<CPerson> (in) ) {
+                    if (_filename) delete[] _filename;                    
+                    if (_extension) delete[] _extention;
+                    if (_created) delete _created;                    
+                    in >> readChars(_filename) >> readChars(_extension) >> *_created >> _size;
+                } else 
+                    throw;
+            }
+            return in;
+        };
         
 };
 
@@ -283,11 +333,42 @@ class CTextFile: public CFile {
         ~CTextFile() {
             if (_path) delete[] _path;
             if (_keywords) delete[] _keywords;
-            if (_author) delete[] _author;
+            if (_author) delete _author;
         }
         const char* path(const char* pth=0) { return setchars(pth, _path); }
         const char* keywords(const char* keywds=0) { return setchars(keywds, _keywords); }
         const CPerson* author(const CPerson* auth=0) { return setlocal<CPerson>(auth, _author); }
+
+        friend std::ostream& header (std::ostream &out) {
+            out << "                Full filename                                    |       Size      |" << date().header;
+            return out;
+        };
+
+        friend std::ostream& operator<< (std::ostream &out, CTextFile& txtfile) {
+            if (out.flags && std::ios::binary) {
+                writeTypeSign<CFile> (out);
+                out << writeChars(_path) << *_author << writeChars(_keywords) << *dynamic_cast<CFile*>(this);
+            } else {
+                out.width(65); out.precision(65); out.fixed;
+                out << left << strcat(_path, "/", _filename, ".", _extension) << '|' << _size << '|' << *_created;
+            }
+            return out;
+        };
+
+        friend std::istream& operator>> (std::istream &in, CTextFile& txtfile) {
+            size_t sz = 0;
+            if (in.flags && std::ios::binary) {
+                if ( readTypeSign<CPerson> (in) ) {
+                    if (_path) delete[] _path;                    
+                    if (_author) delete _author;
+                    if (_keywords) delete[] _keywords;                    
+                    in >> readChars(_path) >> *_author << readChars(_keywords) >> *_created >> _size;
+                } else 
+                    throw;
+            }
+            return in;
+        };
+        
 };
 
 // Елемент архіву {Список Текстових документ архіву, Дата (створення), ступінь архівації елемента архіву};
@@ -307,16 +388,43 @@ class CArchiveEntry {
         }
 
         const CDate* created(const CDate* crtd=0) { return setlocal<CDate>(crtd, _created); }
-        void setcompress(double compress) { 
-            if (compress < 0) throw;
-            _compress = compress;
+        double compress(double compr=std::numeric_limits<double>::max()) { 
+            if (compr != std::numeric_limits<double>::max())
+                if (compr < 0) throw;
+                    else _compress = compr;
+            return _compress;
         }
-        double getcompress() { return _compress; }
         size_t size() { return _listsize; }
         void push_back(const CTextFile& text) {
             if (_listsize < _listmaxsize) 
                 _list[_listsize++] = new CTextFile(text);
         }
+
+        friend std::ostream& operator<< (std::ostream &out, CArchiveEntry& aentry) {
+            if (out.flags && std::ios::binary) {
+                writeTypeSign<CFile> (out);
+                out << writeChars(_path) << *_author << writeChars(_keywords) << *dynamic_cast<CFile*>(this);
+            } else {
+                out.width(65); out.precision(65); out.fixed;
+                out << left << strcat(_path, "/", _filename, ".", _extension) << '|' << _size << '|' << *_created;
+            }
+            return out;
+        };
+
+        friend std::istream& operator>> (std::istream &in, CArchiveEntry& aentry) {
+            size_t sz = 0;
+            if (in.flags && std::ios::binary) {
+                if ( readTypeSign<CPerson> (in) ) {
+                    if (_path) delete[] _path;                    
+                    if (_author) delete _author;
+                    if (_keywords) delete[] _keywords;                    
+                    in >> readChars(_path) >> *_author << readChars(_keywords) >> *_created >> _size;
+                } else 
+                    throw;
+            }
+            return in;
+        };
+        
         //индексация, вывод в поток
         
 
