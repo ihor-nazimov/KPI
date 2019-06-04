@@ -346,7 +346,7 @@ class CTextFile: public CFile {
 
         friend std::ostream& operator<< (std::ostream &out, CTextFile& txtfile) {
             if (out.flags && std::ios::binary) {
-                writeTypeSign<CFile> (out);
+                writeTypeSign<CTextFile> (out);
                 out << writeChars(_path) << *_author << writeChars(_keywords) << *dynamic_cast<CFile*>(this);
             } else {
                 out.width(65); out.precision(65); out.fixed;
@@ -400,10 +400,17 @@ class CArchiveEntry {
                 _list[_listsize++] = new CTextFile(text);
         }
 
+        friend std::ostream& header (std::ostream &out) {
+            out << "  Created   |  Files Qty  ";
+            return out;
+        };
+
         friend std::ostream& operator<< (std::ostream &out, CArchiveEntry& aentry) {
             if (out.flags && std::ios::binary) {
-                writeTypeSign<CFile> (out);
-                out << writeChars(_path) << *_author << writeChars(_keywords) << *dynamic_cast<CFile*>(this);
+                writeTypeSign<CArchiveEntry> (out);
+                out << *_created << _compress << _listmaxsize << _listsize;
+                for (size_t i = 0; i < _listsize; i++) 
+                    out << *_list[i];
             } else {
                 out.width(65); out.precision(65); out.fixed;
                 out << left << strcat(_path, "/", _filename, ".", _extension) << '|' << _size << '|' << *_created;

@@ -13,7 +13,7 @@ typedef struct {
 double mapFX(FXStructure *fxstruct, double (* test) (FXStructure*, long int, double, double)){
     double x;
     double s = 0;
-    for (long int i = 0; i < (long int) ((fxstruct->x2-fxstruct->x1)/fxstruct->dx + 1); i++) {
+    for (long int i = 0; i < (long int) ((fxstruct->x2-fxstruct->x1)/fxstruct->dx + 1.5); i++) {
         x = i * fxstruct->dx + fxstruct->x1;
         s = test(fxstruct, i, x, s);
     } 
@@ -71,7 +71,7 @@ void CalculateS1S2(FXStructure *fxstruct, double* s1, double* s2) {
     }
     *s1 = *s2 = 0;
 
-    for (long int i = 0; i < (long int) ((fxstruct->x2-fxstruct->x1)/fxstruct->dx + 1); i++) {
+    for (long int i = 0; i < (long int) ((fxstruct->x2-fxstruct->x1)/fxstruct->dx + 1.5); i++) {
         x = i * fxstruct->dx + fxstruct->x1;
         if (fxstruct->fx[i] > 0) 
             *s1 += fxstruct->fx[i];
@@ -134,7 +134,7 @@ int main(int argc, char const *argv[])
         return -1;
     }
 
-    fx_size = (long int) ((fxstruct.x2-fxstruct.x1)/fxstruct.dx + 1);
+    fx_size = (long int) ( (fxstruct.x2-fxstruct.x1)/fxstruct.dx + 1.5);
     printf("Try to allocate memory for %i doubles\n", fx_size);
     fxstruct.fx = new double [ fx_size ];  
     if ( !fxstruct.fx) {

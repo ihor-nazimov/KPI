@@ -19,7 +19,7 @@ class Date {
         Date(unsigned year, unsigned month, unsigned day): year(year), month(month), day(day) {}
         Date(const Date &dt): year(dt.year), month(dt.month), day(dt.day) {}
         ~Date(){}
-        virtual void show() {
+        void show() {
             printf("Class Date(@%p): %2i.%2i.%2i\n", this, year, month, day);
         }
 };
@@ -116,7 +116,12 @@ class Person: public Date {
         }
 };
 
-class Employee: public Person, public Position { //public Date when was employed - inheritance is bad idea. Use incapsulation
+class Date1: public Date {
+
+
+};
+
+class Employee: public Person, public Position, public Date1 { //public Date when was employed - inheritance is bad idea. Use incapsulation
         Date employed;
     protected:
         const Employee& _copy(const Employee& src) {
@@ -220,8 +225,10 @@ int main(int argc, char** argv) {
     cout << "Sector is:\n";
     bs221b->display();
     cout << endl;
-    getchar();
+//    getchar();
 
+
+    cout << "VIRTUAL TESTING" << endl;
     Date* dt = bs221b;
     cout << "Date::show() "; dt->show(); cout << endl; 
     Position* pos = bs221b;
