@@ -5,7 +5,9 @@
 // #include <stdexcept>
 #include <iostream>
 #include <fstream>
-// #include <iomanip>
+#include <iomanip>
+
+#include <cstdio>
 // #include <string.h>
 // #include <typeinfo>
 
@@ -17,7 +19,7 @@
 int main(int argc, char const *argv[])
 {
     CDate* today = new CDate(2019, 5, 29);
-    CDate* yesterday = new CDate(2019, 5, 28);
+    // CDate* yesterday = new CDate(2019, 5, 28);
     
     COperator* queen = new COperator("Liudmyla", "Dobryvechir", 1930, 9, 9);
     COperator* director = new COperator("Panas", "Petrovych", 1912, 12, 30);
@@ -70,8 +72,11 @@ int main(int argc, char const *argv[])
     getchar();
 
     delete dest;
+
+
     //CDayBalance balance;
     //double res = standardDeviation(balance);
-    //cout << res << endl;    
+    //cout << res << endl; 
+    // getchar();   
     return 0;
 }

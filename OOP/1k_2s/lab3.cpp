@@ -20,7 +20,7 @@ class Date {
         Date(const Date &dt): year(dt.year), month(dt.month), day(dt.day) {}
         ~Date(){}
         void show() {
-            printf("Class Date(@%p): %2i.%2i.%2i\n", this, year, month, day);
+            printf("Class Date: %2i.%2i.%2i\n", year, month, day);
         }
 };
 
@@ -57,8 +57,8 @@ class Position {
             }
             return _title;
         }
-        virtual void display() {
-            printf("Class Position(@%p): %s, salary=%10.2lf, %s\n", this, _title, _salary, _vacant ? "vacant" : "occupied");
+        void display() {
+            printf("Class Position: %s, salary=%10.2lf, %s\n", _title, _salary, _vacant ? "vacant" : "occupied");
         }
 };
 
@@ -111,14 +111,12 @@ class Person: public Date {
             return _surname;
         }
         void show() {
-            printf("Class Person(@%p): %s %s, birthday is: \n\t", this, _name, _surname);
+            printf("Class Person: %s %s, birthday is: ", _name, _surname);
             Date::show();
         }
 };
 
 class Date1: public Date {
-
-
 };
 
 class Employee: public Person, public Position, public Date1 { //public Date when was employed - inheritance is bad idea. Use incapsulation
@@ -142,9 +140,8 @@ class Employee: public Person, public Position, public Date1 { //public Date whe
         ~Employee() {
         }
         void show() {
-            printf("Class Employee(@%p):\n", this);
-            printf("\t"); Person::show();
-            printf("\t"); Position::display();
+            printf("Class Employee: %s %s %s, employed ", title(), name(), surname());
+            //Date::show();
         }
 };
 
@@ -181,13 +178,13 @@ class Sector: public Employee { //Person is head of sector
             return _sectorname;
         }
         void display() {
-            printf("Class Sector(@%p):\n", this);
-            printf("\tHead of sector: "); Employee::show();
-            printf("\tEmployee list:\n");
-            for (int i = 0; i < MAX_EMPLOYEES; i++) {
-                printf("\t#%i\n", i);
-                _elist[i]->show();
-            }
+            printf("Class Sector. %s. Head: %s %s", _sectorname, name(), surname());
+            // printf("\tHead of sector: "); Employee::show();
+            // printf("\tEmployee list:\n");
+            // for (int i = 0; i < MAX_EMPLOYEES; i++) {
+            //     printf("\t#%i\n", i);
+            //     _elist[i]->show();
+            // }
         }
 };
 
@@ -204,9 +201,9 @@ int main(int argc, char** argv) {
             *new Person("Artur", "Conan Doyle", 1859, 5, 22), 
             *new Position("author", 1000000, false), 
             *new Date(1891, 01, 01)); //employed
-    cout << "Employee head is:\n";
-    head->show();
-    cout << endl;
+    // cout << "Employee head is:\n";
+    // head->show();
+    // cout << endl;
 
     Sector* bs221b = new Sector("221B Baker Street", *head);
     bs221b->_elist[0] = new Employee(
@@ -228,21 +225,20 @@ int main(int argc, char** argv) {
 //    getchar();
 
 
-    cout << "VIRTUAL TESTING" << endl;
-    Date* dt = bs221b;
-    cout << "Date::show() "; dt->show(); cout << endl; 
+    cout << "\nVIRTUAL TESTING" << endl;
+    //Date* dt = bs221b;
+    //cout << "\nDate::show() "; dt->show(); cout << endl; 
     Position* pos = bs221b;
-    cout << "Position::display() "; pos->display(); cout << endl; 
+    cout << "\nPosition::display() "; pos->display(); cout << endl; 
     Person* pers = bs221b;
-    cout << "Person::show() "; pers->show(); cout << endl; 
+    cout << "\nPerson::show() "; pers->show(); cout << endl; 
     Employee* empl = bs221b;
-    cout << "Employee::show() "; empl->show(); cout << endl; 
-    cout << "Employee::display() "; empl->display(); cout << endl; 
+    cout << "\nEmployee::show() "; empl->show(); cout << endl; 
+    cout << "\nEmployee::display() "; empl->display(); cout << endl; 
+    cout << "\nSector::display() "; bs221b->display(); cout << endl; 
 
     delete bs221b;
     delete head;
     
     getchar();
-
-
 }

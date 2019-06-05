@@ -1,4 +1,7 @@
-#pragma once
+//#pragma once
+#ifndef LAB4_CLASSES
+#define LAB4_CLASSES
+
 
 // #include <limits>
 // #include <limits.h>
@@ -27,12 +30,17 @@ class CDate {
     public:
         CDate() {};
         CDate(unsigned yy, unsigned mm, unsigned dd): _year(yy), _month(mm), _day(dd) {};
-        CDate(CDate& src): _year(src.year()), _month(src.month()), _day(src.day()) {};
-        friend std::ostream& operator<< (std::ostream &out, const CDate &dt);
+        CDate(CDate& src) {
+            _year = src._year; 
+            _month = src._month;
+            _day = src._day;
+        };
         unsigned year(unsigned yr = 0);
         unsigned month(unsigned mm = 0);
         unsigned day(unsigned dd = 0);
+        friend std::ostream& operator<< (std::ostream &out, const CDate &dt);
 };
+
 
 class CFuel {
     public:
@@ -102,3 +110,4 @@ class CDayBalance: public CDate { //баланс
         friend std::ostream& operator<< (std::ostream &out, CDayBalance &opn);
 };
 
+#endif

@@ -1,4 +1,6 @@
-#pragma once
+#ifndef LAB4_TEMPLATES
+#define LAB4_TEMPLATES
+
 
 // #include <limits>
 // #include <limits.h>
@@ -21,13 +23,14 @@ template <class C> class Container: public C {
             of.write( CHARS_SIGN, strlen(CHARS_SIGN)+1 ); //save char* signature
             of.write(reinterpret_cast<char*>(&sz), sizeof(size_t)); //save size of char* array 
             of.write(s, sz+1); //save content of char* array
+            return of;
         }
         static std::istream& _readchars(std::istream& ifile, char* s){
             const char* CHARS_SIGN = "chars";
             char* signature = new char[strlen( CHARS_SIGN )+1];
             std::streampos lastpos = ifile.tellg();
             ifile.read(signature, strlen(signature)+1);
-            if ( !strncmp(signature, CHARS_SIGN, sizeof( CHARS_SIGN )) ) {
+            if ( !strncmp(signature, CHARS_SIGN, strlen( CHARS_SIGN )) ) {
                 size_t sz = 0;
                 ifile.read(reinterpret_cast<char*>(&sz), sizeof(size_t));
                 if (! ifile.good()) throw;
@@ -44,10 +47,8 @@ template <class C> class Container: public C {
         }
         Container() {}
         Container(C& content) {
-            if ( &content ) {
-                C& tmp = dynamic_cast<C&> (*this);
-                tmp = content;
-            }
+            C& tmp = dynamic_cast<C&> (*this);
+            tmp = content;
         }
         std::ostream& save(std::ostream& of) {
             of.write(typeid(C).name(), sizeof(typeid(C).name())); //save class signature
@@ -58,7 +59,7 @@ template <class C> class Container: public C {
             char* signature = new char[sizeof(typeid(C).name())];
             std::streampos lastpos = ifile.tellg();
             ifile.read(signature, sizeof(signature));
-            if ( !strncmp(signature, typeid(C).name(), sizeof(signature)) ) {
+            if ( !strncmp(signature, typeid(C).name(), strlen(signature)) ) {
                 C::_read(ifile);
                 if (copy) {
                     C* thisC = dynamic_cast<C*>(this);
@@ -95,3 +96,4 @@ double standardDeviation(A arr) {
     return sqrt(dev/sizeofA);
 }
 
+#endif
