@@ -16,11 +16,32 @@
 
 // using namespace std;
 
+template <class C> 
+void save(const char* filename, C& src) {
+    std::cout << src << std::endl;
+    std::ofstream ofile; 
+    ofile.open(filename, std::ios::binary | std::ios::out);
+    (new Container<C>(src))->save(ofile);
+    ofile.close();
+    std::cerr << "Class " << typeid(C).name() << " was saved" << std::endl;
+}
+
+template <class C>
+C& load(const char* filename) {
+    static Container<C>* dest = new Container<C>();
+    std::ifstream ifile; 
+    ifile.open(filename, std::ios::binary | std::ios::in);
+    dest->load(ifile);
+    ifile.close();
+    std::cout << "Class " << typeid(C).name() << " was restored" << std::endl;
+    std::cout << *dynamic_cast<C*>(dest) << std::endl;
+    return *dynamic_cast<C*>(dest);
+} 
+
 int main(int argc, char const *argv[])
 {
     CDate* today = new CDate(2019, 5, 29);
-    // CDate* yesterday = new CDate(2019, 5, 28);
-    
+
     COperator* queen = new COperator("Liudmyla", "Dobryvechir", 1930, 9, 9);
     COperator* director = new COperator("Panas", "Petrovych", 1912, 12, 30);
     COperator* barista = new COperator("Rognida", "Karpivna", 1920, 5, 1);
@@ -52,27 +73,12 @@ int main(int argc, char const *argv[])
             qty * fuel->price() * (1 + static_cast<double>( rand()%200 )/10 - 0.1),
             today->year(), today->month(), today->day() )); //total price;
     }
-    std::cout << *sales29 << std::endl << std::endl;
 
-    std::ofstream ofile; 
-    ofile.open("lab4.dat", std::ios::binary | std::ios::out);
-    (new Container<CDayBalance>(*sales29))->save(ofile);
-    ofile.close();
-    delete sales29;
-    std::cout << "Was saved and deleted" << std::endl;
+    save<CDayBalance>("lab4.dat", *sales29);
+    load<CDayBalance>("lab4.dat");
+    
+
     getchar();
-
-    Container<CDayBalance>* dest = new Container<CDayBalance>();
-    std::ifstream ifile; 
-    ifile.open("lab4.dat", std::ios::binary | std::ios::in);
-    dest->load(ifile);
-    ifile.close();
-    std::cout << "Was restored" << std::endl;
-    std::cout << *dynamic_cast<CDayBalance*>(dest);
-    getchar();
-
-    delete dest;
-
 
     //CDayBalance balance;
     //double res = standardDeviation(balance);
@@ -80,3 +86,4 @@ int main(int argc, char const *argv[])
     // getchar();   
     return 0;
 }
+

@@ -1,0 +1,12 @@
+         2
+List of archive entry
+ Created  |  Files Qty  
+ 1. 1.2000|1                
+       Size      |   Date   |                     Full filename                                
+0                | 1. 1.1990|/home/ihor/myfile.txt
+
+ 2. 1.2000|2                
+       Size      |   Date   |                     Full filename                                
+0                | 1. 1.2000|/home/ihor2/mydoc.txt
+0                | 1. 1.2001|/doc2.txt
+

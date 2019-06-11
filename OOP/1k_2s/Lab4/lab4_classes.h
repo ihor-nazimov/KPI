@@ -30,11 +30,7 @@ class CDate {
     public:
         CDate() {};
         CDate(unsigned yy, unsigned mm, unsigned dd): _year(yy), _month(mm), _day(dd) {};
-        CDate(CDate& src) {
-            _year = src._year; 
-            _month = src._month;
-            _day = src._day;
-        };
+        CDate(const CDate& src): _year(src._year), _month(src._month), _day(src._day) {};
         unsigned year(unsigned yr = 0);
         unsigned month(unsigned mm = 0);
         unsigned day(unsigned dd = 0);
@@ -54,6 +50,7 @@ class CFuel {
     public:
         CFuel() {};  
         CFuel(FuelType ftype, double pr): _price(pr), _ftype(ftype) {};
+        CFuel(const CFuel& src): _price(src._price), _ftype(src._ftype) {};
         friend std::ostream& operator<< (std::ostream &out, const CFuel &df);
         double price(double pr = 0) { if (pr > 0) _price = pr;  return _price; }
 };
@@ -84,9 +81,10 @@ class COperation: public CDate, public COperator, public CFuel {
         double quantity = 0;
         double totalPrice = 0;
         COperation() {};
-        COperation(const COperator& op, const CFuel& fuel, double qnt, double total, unsigned yy, unsigned mm, unsigned dd);
-        COperation(const COperation& op);
-        operator double();
+        COperation(const COperator& op, const CFuel& fuel, double qnt, double total, unsigned yy, unsigned mm, unsigned dd):
+            CDate(yy, mm, dd), COperator(op), CFuel(fuel), quantity(qnt), totalPrice(total) {}; 
+        COperation(const COperation& op): CDate(op), COperator(op), CFuel(op) {}; 
+        operator double() { return totalPrice; }
         friend std::ostream& operator<< (std::ostream &out, const COperation &opn);
         const size_t size();
 };
@@ -103,6 +101,7 @@ class CDayBalance: public CDate { //баланс
     public:
         CDayBalance() {} 
         CDayBalance(unsigned yy, unsigned mm, unsigned dd, unsigned maxsize); 
+        CDayBalance(const CDayBalance& src);
         ~CDayBalance();
         unsigned push_back(COperation& value);
         const COperation& operator[] (unsigned index);

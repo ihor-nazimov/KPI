@@ -15,7 +15,9 @@
 
 //using namespace std;
 
-template <class C> class Container: public C {
+template <class C> class Container {
+    protected:
+        C* cptr=0;
     public:
         static std::ostream& _writechars(std::ostream& of, const char* s, size_t sz=0){
             static const char* CHARS_SIGN = "chars";
@@ -46,10 +48,10 @@ template <class C> class Container: public C {
             return s;
         }
         Container() {}
-        Container(C& content): C(content) {}
+        Container(C& content): cptr(&content) {}
         std::ostream& save(std::ostream& of) {
-            of.write(typeid(C).name(), strlen(typeid(C).name()) + 1 ); //save class signature
-            C::_write(of);
+            of.write(typeid(*C).name(), strlen(typeid(*C).name()) + 1 ); //save class signature
+            of << of);
             return of; 
         }
         std::istream& load(std::istream& ifile, C* copy = 0) {
@@ -74,19 +76,21 @@ template <class C> class Container: public C {
 };    
 
 
-template <class A, class S, class O> 
-double standardDeviation(A* arr, S n) {
+template <class A> 
+double standardDeviation(A arr) {
 //double standardDeviation(COperation* arr[], unsigned size) {
-    A sum = 0;
+    double sum = 0;
     double dev = 0;
-    double avrg = 0;
     double tmp;
-    for (S i = 0; i < n; i++) {
+    unsigned i, sizeofA; 
+    //sizeofA = arr.size();
+    sizeofA = arr.size();
+    for (i = 0; i < sizeofA; i++) {
             sum += *arr[i];
     }
-    avrg = sum / n;
-    for (S i = 0; i < n; i++) {
-        tmp = avrg - arr[i];
+    sum /= sizeofA;
+    for (i = 0; i < sizeofA; i++) {
+        tmp = sum-*arr[i];
         dev += tmp*tmp;
     }
     return sqrt(dev/sizeofA);

@@ -92,8 +92,8 @@ std::ostream& COperator::_write(std::ostream& of) {
 }
 
 std::istream& COperator::_read(std::istream& ifile) {
-    Container<COperator>::_readchars(ifile, _name);
-    Container<COperator>::_readchars(ifile, _surname);
+    _name = Container<COperator>::_readchars(ifile);
+    _surname = Container<COperator>::_readchars(ifile);
     (new Container<CDate>())->load(ifile, &birthday);
     return ifile;
 }
@@ -164,26 +164,6 @@ std::istream& COperation::_read(std::istream& ifile) {
     return ifile;
 }
 
-COperation::COperation(const COperator& op, const CFuel& fuel, double qnt, double total, unsigned yy, unsigned mm, unsigned dd):
-    quantity(qnt), totalPrice(total) {
-    COperator* tmpop = (COperator*) this;
-    *tmpop = op;
-    CFuel* tmpfuel = (CFuel*) this;
-    *tmpfuel = fuel;
-    _year = yy;
-    _month = mm;
-    _day = dd;
-} 
-
-COperation::COperation(const COperation& op) {
-    COperator* tmpop = (COperator*) this;
-    *tmpop = (COperator) op;
-    CFuel* tmpfuel = (CFuel*) this;
-    *tmpfuel = (CFuel) op;
-} 
-
-COperation::operator double() { return totalPrice; }
-
 std::ostream& operator<< (std::ostream &out, const COperation &opn) {
     COperation& opn_tmp = const_cast<COperation&>(opn);
     out << dynamic_cast<CDate&>(opn_tmp) << '|' << dynamic_cast<COperator&>(opn_tmp) << '|' << 
@@ -224,6 +204,15 @@ CDayBalance::CDayBalance(unsigned yy, unsigned mm, unsigned dd, unsigned maxsize
     _operationList = new COperation* [maxsizeofList];
     for (unsigned i=0; i < maxsizeofList; i++) _operationList[i] = 0;
 } 
+
+CDayBalance::CDayBalance(const CDayBalance& src): CDate(src), maxsizeofList(src.maxsizeofList),
+        sizeofList(src.sizeofList) {
+    for (unsigned i=0; i < maxsizeofList; i++) 
+        if (i < sizeofList) 
+            _operationList[i] = new COperation(*(src._operationList[i]));
+        else 
+            _operationList[i] = 0;
+};
 
 CDayBalance::~CDayBalance() {
     for (unsigned i=0; i < maxsizeofList; i++) 

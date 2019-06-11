@@ -42,11 +42,13 @@
                 "panel": "shared"
             },
             "args": [
+                "-f",
+                "${fileDirname}\\makefile",
                 "QUIET=0"
             ],
             "problemMatcher": [
                 "$gcc"
-            ],
+            ]
 
                 //{
                 //"owner": "cpp",
@@ -64,7 +66,7 @@
             // }
         },
         {
-            "label": "Make clean",
+            "label": "Clean make",
             "type": "shell",
             "command": "C:\\MinGW\\bin\\mingw32-make",
             "options": {
@@ -81,22 +83,27 @@
                 "panel": "shared"
             },
             "args": [
-                "clean"
+                "clean",
+                "QUIET=0"
             ],
-            "problemMatcher": {
-                "owner": "cpp",
-                "fileLocation": [
-                    "absolute"
-                ],
-                "pattern": {
-                    "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
-                    "file": 1,
-                    "line": 2,
-                    "column": 3,
-                    "severity": 4,
-                    "message": 5
-                }
-            }
+            "problemMatcher": [
+                "$gcc"
+            ]
+
+                //{
+                //"owner": "cpp",
+                //"fileLocation": [
+                //    "absolute"
+                //],
+            //     "pattern": {
+            //         "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
+            //         "file": 1,
+            //         "line": 2,
+            //         "column": 3,
+            //         "severity": 4,
+            //         "message": 5
+            //     }
+            // }
         }
     ]
 }
