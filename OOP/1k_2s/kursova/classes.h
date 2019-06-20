@@ -59,7 +59,7 @@ std::ostream& writeChars(std::ostream& out, const char* s);
 //load char* from binary stream
 char* readChars(std::istream& in);
 char* setchars(const char* src, char* dest);
-const char* inputChars(istream& in, ostream& out, const char* prompt, size_t n=255);
+char* inputChars(istream& in, ostream& out, const char* prompt, size_t n=255);
 double inputDouble(istream& in, ostream& out, const char* prompt);
 char* getFilename(char* dest, const char* def_filename, size_t n=255);
 int getChoice(const char* prompt);
@@ -72,7 +72,7 @@ class CDate {
    public:
         CDate() {};
         CDate(unsigned yy, unsigned mm, unsigned dd);
-        CDate(const CDate& src);
+        CDate(CDate& src);
         CDate& input(istream& in, ostream& out, const char* prompt);
         ~CDate() {}
         unsigned year(unsigned yr = 0);
@@ -82,6 +82,11 @@ class CDate {
         CDate& load(std::ifstream& in);
         static std::ostream& header (std::ostream &out);
         friend std::ostream& operator<< (std::ostream &out, CDate &dt);
+        CDate& operator=(CDate& dt) { 
+            _year = dt.year();
+            _month = dt.month();
+            _day = dt.day(); 
+            return *this; }
 };
 
 class CPerson {
@@ -91,13 +96,13 @@ class CPerson {
     public:
         CPerson() { name(""); surname(""); }
         CPerson(const char* nm, const char* surnm, CDate& bd);
-        CPerson(const CPerson& src);
+        CPerson(CPerson& src);
         ~CPerson();
         CPerson& input(istream& in, ostream& out, const char* prompt);
         const char* name(const char* nm=0) { return _name = setchars(nm, _name); }
         const char* surname(const char* surnm=0) { return _surname = setchars(surnm, _surname); }
-        const CDate& birthday(const CDate& dt) { return _birthday = dt; }
-        const CDate& birthday() { return _birthday; }
+        CDate& birthday(CDate& dt) { return _birthday = dt; }
+        CDate& birthday() { return _birthday; }
         void save(std::ofstream& out);
         CPerson& load(std::ifstream& in);
         static std::ostream& header(std::ostream &out);
@@ -112,16 +117,16 @@ class CFile {
         unsigned long _size = 0;
     public:
         CFile() { filename(""); extention(""); }
-        CFile(const char* fnm, const char* ext, const CDate& crtd, unsigned long sz);
-        CFile(const CFile& src);
+        CFile(const char* fnm, const char* ext, CDate& crtd, unsigned long sz);
+        CFile(CFile& src);
         ~CFile();
         CFile& input(istream& in, ostream& out, const char* prompt);
         const char* filename(const char* fnm=0) { return _filename = setchars(fnm, _filename); }
         const char* extention(const char* ext=0) { return _extention = setchars(ext, _extention); }
         unsigned long size(unsigned long sz) { return _size = sz; }
         unsigned long size() { return _size; }
-        const CDate& date(const CDate& dt) { return _created = dt; }
-        const CDate& date() { return _created; }
+        CDate& date(CDate& dt) { return _created = dt; }
+        CDate& date() { return _created; }
         void save(std::ofstream& out);
         CFile& load(std::ifstream& in);
         static std::ostream& header (std::ostream &out);
@@ -135,14 +140,14 @@ class CTextFile: public CFile {
         char* _keywords = 0;
     public:
         CTextFile(){ path(""); keywords(""); }
-        CTextFile(const CFile& file, const char* pth, CPerson& auth, const char* keywds);
-        CTextFile(const CTextFile& src);
+        CTextFile(CFile& file, const char* pth, CPerson& auth, const char* keywds);
+        CTextFile(CTextFile& src);
         ~CTextFile();
         CTextFile& input(istream& in, ostream& out, const char* prompt);
         const char* path(const char* pth=0) { return _path = setchars(pth, _path); }
         const char* keywords(const char* keywds=0) { return _keywords = setchars(keywds, _keywords); }
-        const CPerson* author(const CPerson& auth) { return _author = const_cast<CPerson*>(&auth); }
-        const CPerson& author() { return *_author; }
+        CPerson* author(CPerson& auth) { return _author = const_cast<CPerson*>(&auth); }
+        CPerson& author() { return *_author; }
         void save(std::ofstream& out);
         CTextFile& load(std::ifstream& in);
         static std::ostream& header(std::ostream &out);
@@ -159,12 +164,12 @@ class CArchiveEntry {
         size_t _listsize = 0;
     public:
         CArchiveEntry();
-        CArchiveEntry(const CDate& crtd, size_t maxsize);
-        CArchiveEntry(const CArchiveEntry& src);
+        CArchiveEntry(CDate& crtd, size_t maxsize);
+        CArchiveEntry(CArchiveEntry& src);
         ~CArchiveEntry();
         CArchiveEntry& input(istream& in, ostream& out, const char* prompt);
-        const CDate& created(const CDate& crtd) { return _created = crtd; }
-        const CDate& created() { return _created; }
+        CDate& created(CDate& crtd) { return _created = crtd; }
+        CDate& created() { return _created; }
         double compress(double compr) { return _compress = compr; }
         double compress() { return _compress; }
         size_t listsize() { return _listsize; }
@@ -174,6 +179,8 @@ class CArchiveEntry {
         static std::ostream& header (std::ostream &out);
         friend std::ostream& operator<< (std::ostream &out, CArchiveEntry& aentry);
         CTextFile& operator[] (size_t index);
+        double operator+=(double compr) { return _compress += compr; }
+        double operator-=(double compr) { return _compress -= compr; }
 };
 
 class CArchive {
@@ -189,6 +196,7 @@ class CArchive {
         CArchive& load(std::ifstream& in);
         static std::ostream& header (std::ostream &out);
         friend std::ostream& operator<< (std::ostream &out, CArchive& aentry);
+        CArchiveEntry& operator+=(CArchiveEntry& newEntry) { push_back(newEntry); return *_list[_listsize-1]; }
 };
 
 

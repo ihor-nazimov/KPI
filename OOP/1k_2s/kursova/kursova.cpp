@@ -35,6 +35,24 @@
 
 using namespace std;
 
+template <class C, class R>
+R averageNumber(C& archive) {
+    R total = 0;
+    unsigned long num = 0; 
+    for (unsigned long i=0; i < archive.size(); i++, num++)
+        total += archive[i].listsize();
+    return total/num;
+}
+
+template <class C, class R>
+R averageCompress(C& archive) {
+    R total = 0;
+    unsigned long num = 0; 
+    for (unsigned long i=0; i < archive.size(); i++, num++)
+        total += archive[i].compress();
+    return total/num;
+}
+
 int main(int argc, char const *argv[])
 {
     CArchive* archive = new CArchive(200); //archive size limit
@@ -51,13 +69,14 @@ int main(int argc, char const *argv[])
         "3. Load from binary\n"
         "4. Save as binary\n"
         "5. Save as text\n"
+        "6. Average documents number and level of compression\n"
         "0. Exit \n>";
 
     do {
         switch (choice = getChoice(mainMenu)) {
             case 1: 
             // "1. Enter new archive entry\n"
-                archive->push_back((new CArchiveEntry())->input(cin, cout, "Enter new archive entry:\n"));
+                *archive += (new CArchiveEntry())->input(cin, cout, "Enter new archive entry:\n");
                 break;
             case 2:
             // "2. Display archive\n" 
@@ -67,8 +86,8 @@ int main(int argc, char const *argv[])
             // "3. Load from binary\n"
                 getFilename(filename, def_filename, sizeof(filename));
                 ifile.open(filename, ios_base::in | ios_base::binary);
-                if ( (archive->load(ifile)) ) 
-                    std::cout << "Archive was loaded from " << filename << endl << endl;
+                archive->load(ifile); 
+                std::cout << "Archive was loaded from " << filename << endl << endl;
                 ifile.close();
                 break;
             case 4:
@@ -86,6 +105,13 @@ int main(int argc, char const *argv[])
                 ofile << *archive;
                 ofile.close();
                 std::cout << "Archive was saved as text into " << filename << endl << endl;
+                break;
+            case 6:
+            // "6. Average documents number and level of compression\n"
+                std::cout << "Average documents number: " 
+                << averageNumber<CArchive, unsigned long>(*archive) << endl
+                << "Average compress: " 
+                << averageCompress<CArchive, double>(*archive) << endl;
                 break;
             case 0:
             // "0. Exit \n>";

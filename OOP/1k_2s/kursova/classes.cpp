@@ -44,7 +44,7 @@ char* setchars(const char* src, char* dest) {
     return dest;
 }
 
-const char* inputChars(istream& in, ostream& out, const char* prompt, size_t n) {
+char* inputChars(istream& in, ostream& out, const char* prompt, size_t n) {
     char* buf = new char[n+1];
     do {
         if (!in) {in.clear(); in.ignore(MAX_CHARS, '\n'); } 
@@ -147,7 +147,7 @@ CDate::CDate(unsigned yy, unsigned mm, unsigned dd) {
     month(mm); 
     day(dd);
 }
-CDate::CDate(const CDate& src) {
+CDate::CDate(CDate& src) {
     year(src._year);
     month(src._month);
     day(src._day);
@@ -176,7 +176,7 @@ CPerson::CPerson(const char* nm, const char* surnm, CDate& bd): CPerson() {
     surname(surnm);
 }
 
-CPerson::CPerson(const CPerson& src): CPerson() {
+CPerson::CPerson(CPerson& src): CPerson() {
     surname(const_cast<CPerson&>(src).surname());
     name(const_cast<CPerson&>(src).name());
     birthday(const_cast<CPerson&>(src).birthday());
@@ -193,7 +193,7 @@ CPerson& CPerson::input(istream& in, ostream& out, const char* prompt) {
     if (_surname) delete[] _surname;
     name(inputChars(in, out, "Enter name: "));
     surname(inputChars(in, out, "Enter surname: "));
-    birthday( (new CDate())->input(in, out, "Enter birthday: "));
+    _birthday = ( (new CDate())->input(in, out, "Enter birthday: "));
     return *this;
 }
 
@@ -233,14 +233,14 @@ std::ostream& operator<< (std::ostream &out, CPerson& pers) {
 
 
 //CFile
-CFile::CFile(const char* fnm, const char* ext, const CDate& crtd, unsigned long sz) {
+CFile::CFile(const char* fnm, const char* ext, CDate& crtd, unsigned long sz) {
     filename(fnm);
     extention(ext);
     date(crtd);
     size(sz);
 }
 
-CFile::CFile(const CFile& src) {
+CFile::CFile(CFile& src) {
     filename(const_cast<CFile&>(src).filename());
     extention(const_cast<CFile&>(src).extention());
     date(const_cast<CFile&>(src).date());
@@ -298,14 +298,14 @@ std::ostream& operator<< (std::ostream &out, CFile& file) {
 };
 
 //CTextFile
-CTextFile::CTextFile(const CFile& file, const char* pth, CPerson& auth, const char* keywds): 
+CTextFile::CTextFile(CFile& file, const char* pth, CPerson& auth, const char* keywds): 
     CFile(file) {
     path(pth);
     author(auth);
     keywords(keywds);
 }
 
-CTextFile::CTextFile(const CTextFile& src): CFile(src) {
+CTextFile::CTextFile(CTextFile& src): CFile(src) {
     CTextFile();
     path(const_cast<CTextFile&>(src).path());
     author(const_cast<CTextFile&>(src).author());
@@ -373,14 +373,14 @@ CArchiveEntry::CArchiveEntry() {
     _list = new CTextFile* [_listmaxsize];
 }
 
-CArchiveEntry::CArchiveEntry(const CDate& crtd, size_t maxsize) {
+CArchiveEntry::CArchiveEntry(CDate& crtd, size_t maxsize) {
     created(crtd);
     _listmaxsize = maxsize;
     _listsize = 0;
     _list = new CTextFile* [maxsize];
 }
 
-CArchiveEntry::CArchiveEntry(const CArchiveEntry& src): _listmaxsize(src._listmaxsize), _listsize(src._listsize) {
+CArchiveEntry::CArchiveEntry(CArchiveEntry& src): _listmaxsize(src._listmaxsize), _listsize(src._listsize) {
     created(src._created);
     compress(src._compress);
     _list = new CTextFile* [_listmaxsize];
@@ -437,7 +437,13 @@ CArchiveEntry& CArchiveEntry::load(std::ifstream& in) {
         _list = new CTextFile* [_listmaxsize];
         for (size_t i = 0; i < _listsize; i++) {
             _list[i] = new CTextFile();
-            _list[i]->load(in);
+            try{
+                _list[i]->load(in);
+            } 
+            catch (int a) {
+                cerr << "Error while loading. Nothing changed";
+                delete _list[i];
+            }
         }
     } else 
         throw;
@@ -455,7 +461,7 @@ std::ostream& operator<< (std::ostream &out, CArchiveEntry& aentry) {
     << fixed << left << setw(17) << setprecision(3) << aentry._compress;
     out << endl << endl << CTextFile::header << endl;
     for (size_t i = 0; i < aentry._listsize; i++) 
-        out << *aentry._list[i] << endl;
+        out << aentry[i] << endl;
     return out;
 }
 
@@ -517,7 +523,7 @@ std::ostream& operator<< (std::ostream &out, CArchive& aentry) {
     out << endl << "*** List of archive entry ***\n" << endl; 
     for (size_t i = 0; i < aentry._listsize; i++) {
         out << "Entry #" << left << setw(3) << i << endl << CArchiveEntry::header << endl
-        << *(aentry._list[i]) << endl;
+        << aentry[i] << endl;
     }
     //out << endl;
     return out;
